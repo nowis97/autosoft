@@ -64,7 +64,7 @@ export default function NewVehiclePage() {
 
     const tenant = store.getTenant();
 
-    store.createVehicle({
+    const vehicleData = {
       tenantId: tenant.id,
       licensePlate: normalizeLicensePlate(licensePlate),
       brand,
@@ -79,7 +79,7 @@ export default function NewVehiclePage() {
       priceCash: parseInt(priceCash, 10),
       priceFinanced: priceFinanced ? parseInt(priceFinanced, 10) : undefined,
       acquisitionCost: acquisitionCost ? parseInt(acquisitionCost, 10) : undefined,
-      status: "AVAILABLE",
+      status: "AVAILABLE" as const,
       description: description || `Excelente ${brand} ${model} año ${year}. Documentación al día y transferible de inmediato.`,
       features: ["Aire Acondicionado", "Alarma", "Cierre Centralizado", "Frenos ABS"],
       images: [imageUrl],
@@ -87,7 +87,16 @@ export default function NewVehiclePage() {
       publishedToMercadolibre: publishML,
       publishedToChileautos: publishChileautos,
       publishedToYapo: true,
-    });
+    };
+
+    store.createVehicle(vehicleData);
+
+    // Persist to PostgreSQL backend
+    fetch("/api/vehicles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(vehicleData),
+    }).catch((err) => console.warn("Failed to persist vehicle to PostgreSQL", err));
 
     router.push("/app/inventory");
   };

@@ -64,7 +64,7 @@ export function DealershipSetupModal({ isOpen, onClose, onSuccess }: DealershipS
       return;
     }
 
-    store.updateTenant({
+    const updatedTenant = {
       name,
       rut,
       phone,
@@ -77,7 +77,16 @@ export function DealershipSetupModal({ isOpen, onClose, onSuccess }: DealershipS
         dealershipName: name,
         primaryColor: currentTenant.whitelabel?.primaryColor || "#0284c7",
       },
-    });
+    };
+
+    store.updateTenant(updatedTenant);
+
+    // Persist to PostgreSQL backend
+    fetch("/api/tenants", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedTenant),
+    }).catch((err) => console.warn("Failed to persist tenant to database", err));
 
     setIsSaved(true);
     setTimeout(() => {

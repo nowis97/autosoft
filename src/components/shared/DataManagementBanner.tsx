@@ -23,8 +23,11 @@ export function DataManagementBanner() {
 
   const handleClear = () => {
     store.clearMockData();
+    fetch("/api/vehicles?clearAll=true", { method: "DELETE" }).catch((err) =>
+      console.warn("DB clear sync failed", err)
+    );
     setShowConfirmClear(false);
-    setActionMessage("¡Datos de prueba eliminados! Tu catálogo está listo para tus propios autos.");
+    setActionMessage("¡Datos de prueba eliminados de la base de datos! Tu catálogo está listo para tus propios autos.");
     setTimeout(() => setActionMessage(""), 4000);
     // Suggest configuring dealership if still on default name
     if (tenant.name === "Automotora Oriente") {
@@ -34,7 +37,12 @@ export function DataManagementBanner() {
 
   const handleRestore = () => {
     store.restoreMockData();
-    setActionMessage("¡Catálogo de demostración restaurado!");
+    fetch("/api/db/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "seed" }),
+    }).catch((err) => console.warn("DB restore sync failed", err));
+    setActionMessage("¡Catálogo de demostración restaurado en la base de datos!");
     setTimeout(() => setActionMessage(""), 4000);
   };
 
