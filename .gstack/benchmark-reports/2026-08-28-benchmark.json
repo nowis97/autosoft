@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-08-28T12:19:45.711Z",
+  "host": "http://localhost:3000",
+  "totalRoutesTested": 10,
+  "averageResponseTimeMs": 69,
+  "routes": [
+    {
+      "path": "/",
+      "name": "Root Landing / Selector",
+      "statusCode": 200,
+      "medianMs": 124,
+      "sizeKb": "45.0",
+      "fastestMs": 108,
+      "slowestMs": 716
+    },
+    {
+      "path": "/site/auto-oriente",
+      "name": "Showroom Público Whitelabel",
+      "statusCode": 200,
+      "medianMs": 81,
+      "sizeKb": "55.4",
+      "fastestMs": 78,
+      "slowestMs": 91
+    },
+    {
+      "path": "/site/auto-oriente/vehicles/veh-1",
+      "name": "Ficha Vehículo Detalle",
+      "statusCode": 200,
+      "medianMs": 81,
+      "sizeKb": "48.3",
+      "fastestMs": 78,
+      "slowestMs": 154
+    },
+    {
+      "path": "/app/inventory",
+      "name": "Inventario & Stock DMS",
+      "statusCode": 200,
+      "medianMs": 86,
+      "sizeKb": "57.6",
+      "fastestMs": 82,
+      "slowestMs": 143
+    },
+    {
+      "path": "/app/financing",
+      "name": "Financiamiento & Scoring F&I",
+      "statusCode": 200,
+      "medianMs": 69,
+      "sizeKb": "43.6",
+      "fastestMs": 63,
+      "slowestMs": 73
+    },
+    {
+      "path": "/app/transfers",
+      "name": "Transferencias & Notaría",
+      "statusCode": 200,
+      "medianMs": 62,
+      "sizeKb": "39.4",
+      "fastestMs": 59,
+      "slowestMs": 63
+    },
+    {
+      "path": "/app/copilot",
+      "name": "Copiloto WhatsApp IA 24/7",
+      "statusCode": 200,
+      "medianMs": 60,
+      "sizeKb": "46.0",
+      "fastestMs": 58,
+      "slowestMs": 64
+    },
+    {
+      "path": "/app/invoicing/f29",
+      "name": "Asistente F29 SII",
+      "statusCode": 200,
+      "medianMs": 60,
+      "sizeKb": "41.3",
+      "fastestMs": 60,
+      "slowestMs": 60
+    },
+    {
+      "path": "/app/inspection/yard-mode",
+      "name": "Modo Patio PWA Móvil",
+      "statusCode": 200,
+      "medianMs": 58,
+      "sizeKb": "38.8",
+      "fastestMs": 55,
+      "slowestMs": 62
+    },
+    {
+      "path": "/manifest.webmanifest",
+      "name": "PWA Web App Manifest",
+      "statusCode": 200,
+      "medianMs": 12,
+      "sizeKb": "0.4",
+      "fastestMs": 11,
+      "slowestMs": 15
+    }
+  ]
+}

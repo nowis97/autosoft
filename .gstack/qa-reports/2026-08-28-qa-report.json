@@ -1,0 +1,31 @@
+{
+  "date": "2026-08-28",
+  "healthScore": 100,
+  "tier": "Exhaustive",
+  "unitTestsPassing": 80,
+  "unitTestSuites": 30,
+  "e2eTestsPassing": 8,
+  "e2eDurationSeconds": 7.7,
+  "productionRoutesCount": 32,
+  "categoryScores": {
+    "console": 100,
+    "links": 100,
+    "functional": 100,
+    "visual": 100,
+    "ux": 100,
+    "performance": 100,
+    "content": 100,
+    "accessibility": 100
+  },
+  "e2eSuites": [
+    "copilot-chat.spec.ts",
+    "digital-notary.spec.ts",
+    "f29-accounting.spec.ts",
+    "financing.spec.ts",
+    "inventory.spec.ts",
+    "storefront.spec.ts",
+    "wholesale.spec.ts",
+    "yard-mode.spec.ts"
+  ],
+  "shipReady": true
+}

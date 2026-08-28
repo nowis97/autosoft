@@ -1,0 +1,19 @@
+{
+  "date": "2026-08-27",
+  "url": "http://localhost:3000",
+  "healthScore": 100,
+  "status": "SHIP_READY",
+  "totalRoutes": 29,
+  "totalTestsPassed": 60,
+  "issues": [],
+  "categoryScores": {
+    "console": 100,
+    "links": 100,
+    "visual": 100,
+    "functional": 100,
+    "ux": 100,
+    "performance": 100,
+    "content": 100,
+    "accessibility": 100
+  }
+}
