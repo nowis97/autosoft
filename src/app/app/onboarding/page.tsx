@@ -29,6 +29,7 @@ import { store } from "@/lib/store";
 import { validateRUT, formatRUT } from "@/lib/chilean-utils/rut";
 import { validateLicensePlate, normalizeLicensePlate } from "@/lib/chilean-utils/license-plate";
 import { formatCLP } from "@/lib/chilean-utils/currency";
+import { lookupVehicleByPlate } from "@/lib/chilean-utils/padron-decoder";
 
 export default function OnboardingWizardPage() {
   const router = useRouter();
@@ -135,7 +136,20 @@ export default function OnboardingWizardPage() {
     const val = e.target.value.toUpperCase();
     setPlate(val);
     const check = validateLicensePlate(val);
-    setPlateError(check.valid || val.length < 5 ? "" : "Formato inválido (ej. BBCL12 o AB1234)");
+    if (check.valid) {
+      setPlateError("");
+      const data = lookupVehicleByPlate(val);
+      setBrand(data.brand);
+      setModel(data.model);
+      setVersion(data.version);
+      setYear(data.year.toString());
+      setMileage(data.mileage.toString());
+      setPriceCash(data.priceCash.toString());
+      setPriceFinanced(data.priceFinanced.toString());
+      setImageUrl(data.imageUrl);
+    } else {
+      setPlateError(val.length < 5 ? "" : "Formato inválido (ej. BBCL12 o AB1234)");
+    }
   };
 
   const submitStep2 = (e: React.FormEvent) => {

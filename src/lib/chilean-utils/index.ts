@@ -5,3 +5,4 @@ export * from "./tax-calculator";
 export * from "./valuation";
 export * from "./service-costs";
 export * from "./tax-invoicing";
+export * from "./padron-decoder";
