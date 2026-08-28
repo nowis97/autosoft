@@ -35,10 +35,11 @@ export async function PUT(req: NextRequest) {
           slug: updated.slug,
           rut: updated.rut,
           phone: updated.phone,
-          email: updated.email,
+          whatsapp: updated.phone || "+56 9 8765 4321",
+          email: updated.email || null,
           city: updated.city,
-          address: updated.address,
-          whitelabel: updated.whitelabel,
+          address: updated.address || "Av. Principal 123",
+          primaryColor: updated.whitelabel?.primaryColor || "#2563eb",
         }).onConflictDoUpdate({
           target: tenantsTable.id,
           set: {
@@ -46,10 +47,11 @@ export async function PUT(req: NextRequest) {
             slug: updated.slug,
             rut: updated.rut,
             phone: updated.phone,
-            email: updated.email,
+            whatsapp: updated.phone || "+56 9 8765 4321",
+            email: updated.email || null,
             city: updated.city,
-            address: updated.address,
-            whitelabel: updated.whitelabel,
+            address: updated.address || "Av. Principal 123",
+            primaryColor: updated.whitelabel?.primaryColor || "#2563eb",
           },
         });
       } catch (dbErr) {

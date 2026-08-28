@@ -36,10 +36,11 @@ export async function POST(req: NextRequest) {
       slug: tenant.slug,
       rut: tenant.rut,
       phone: tenant.phone,
-      email: tenant.email,
+      whatsapp: tenant.phone || "+56 9 8765 4321",
+      email: tenant.email || null,
       city: tenant.city,
-      address: tenant.address,
-      whitelabel: tenant.whitelabel,
+      address: tenant.address || "Av. Principal 123",
+      primaryColor: tenant.whitelabel?.primaryColor || "#2563eb",
     }).onConflictDoNothing();
 
     const vehicles = store.getVehicles();
@@ -57,15 +58,19 @@ export async function POST(req: NextRequest) {
         bodyType: v.bodyType as any,
         color: v.color,
         licensePlate: v.licensePlate,
-        vin: v.vin,
-        engineNumber: v.engineNumber,
+        vin: v.vin || null,
         priceCash: v.priceCash,
-        priceFinanced: v.priceFinanced,
-        acquisitionCost: v.acquisitionCost,
+        priceFinanced: v.priceFinanced || null,
+        acquisitionCost: v.acquisitionCost || null,
         status: v.status as any,
-        photos: v.photos || [],
+        description: v.description || "",
+        features: v.features || [],
+        images: v.images || [],
+        publishedToWeb: v.publishedToWeb ?? true,
+        publishedToMercadolibre: v.publishedToMercadolibre ?? true,
+        publishedToChileautos: v.publishedToChileautos ?? true,
+        publishedToYapo: v.publishedToYapo ?? true,
         daysInStock: v.daysInStock || 1,
-        syndication: v.syndication || { chileautos: false, mercadolibre: false, yapo: false },
       }).onConflictDoNothing();
     }
 

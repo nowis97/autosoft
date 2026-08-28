@@ -44,6 +44,11 @@ export interface Tenant {
   bannerUrl?: string;
   chileautosToken?: string;
   mercadolibreConnected?: boolean;
+  whitelabel?: {
+    dealershipName?: string;
+    primaryColor?: string;
+    logoUrl?: string;
+  };
   createdAt?: string;
 }
 

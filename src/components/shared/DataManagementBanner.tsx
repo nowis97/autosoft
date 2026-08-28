@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { Trash2, RotateCcw, Building2, Sparkles, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { store } from "@/lib/store";
@@ -76,6 +77,16 @@ export function DataManagementBanner() {
         )}
 
         <div className="flex items-center gap-2">
+          <Link href="/app/onboarding">
+            <Button
+              size="sm"
+              className="h-7 text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold gap-1 px-2.5 shadow-sm"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Asistente de Inicio</span>
+            </Button>
+          </Link>
+
           <Button
             size="sm"
             variant="outline"

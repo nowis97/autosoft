@@ -26,10 +26,12 @@ import {
   Globe,
   Settings,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
 import { store } from "@/lib/store";
 
 const navItems = [
+  { href: "/app/onboarding", label: "🚀 Asistente de Inicio", icon: Sparkles },
   { href: "/app", label: "Resumen General", icon: LayoutDashboard },
   { href: "/app/inventory", label: "Inventario DMS", icon: Car },
   { href: "/app/inspection", label: "Inspección Técnica", icon: ClipboardCheck },
