@@ -2,10 +2,6 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "regions": [
-    "iad1",
-    "scl1"
-  ],
   "headers": [
     {
       "source": "/(.*)",
