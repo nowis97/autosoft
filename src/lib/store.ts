@@ -474,6 +474,111 @@ class MemoryStore {
   private nextFolio = 1043;
   private subscribers: Array<() => void> = [];
 
+  constructor() {
+    if (typeof window !== "undefined") {
+      this.loadFromStorage();
+    }
+  }
+
+  private loadFromStorage() {
+    try {
+      const saved = localStorage.getItem("autosoft_db_state_v1");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.tenant) this.tenant = parsed.tenant;
+        if (parsed.users) this.users = parsed.users;
+        if (parsed.vehicles) this.vehicles = parsed.vehicles;
+        if (parsed.leads) this.leads = parsed.leads;
+        if (parsed.applications) this.applications = parsed.applications;
+        if (parsed.transfers) this.transfers = parsed.transfers;
+        if (parsed.valuations) this.valuations = parsed.valuations;
+        if (parsed.appointments) this.appointments = parsed.appointments;
+        if (parsed.serviceOrders) this.serviceOrders = parsed.serviceOrders;
+        if (parsed.consignments) this.consignments = parsed.consignments;
+        if (parsed.invoices) this.invoices = parsed.invoices;
+        if (parsed.subscription) this.subscription = parsed.subscription;
+        if (parsed.auditLogs) this.auditLogs = parsed.auditLogs;
+        if (parsed.inspections) this.inspections = parsed.inspections;
+        if (parsed.wholesaleListings) this.wholesaleListings = parsed.wholesaleListings;
+        if (parsed.wholesaleBids) this.wholesaleBids = parsed.wholesaleBids;
+        if (parsed.warrantyTickets) this.warrantyTickets = parsed.warrantyTickets;
+        if (parsed.aftersalesReminders) this.aftersalesReminders = parsed.aftersalesReminders;
+      }
+    } catch (e) {
+      console.warn("Could not load stored state", e);
+    }
+  }
+
+  private saveToStorage() {
+    if (typeof window !== "undefined") {
+      try {
+        const state = {
+          tenant: this.tenant,
+          users: this.users,
+          vehicles: this.vehicles,
+          leads: this.leads,
+          applications: this.applications,
+          transfers: this.transfers,
+          valuations: this.valuations,
+          appointments: this.appointments,
+          serviceOrders: this.serviceOrders,
+          consignments: this.consignments,
+          invoices: this.invoices,
+          subscription: this.subscription,
+          auditLogs: this.auditLogs,
+          inspections: this.inspections,
+          wholesaleListings: this.wholesaleListings,
+          wholesaleBids: this.wholesaleBids,
+          warrantyTickets: this.warrantyTickets,
+          aftersalesReminders: this.aftersalesReminders,
+        };
+        localStorage.setItem("autosoft_db_state_v1", JSON.stringify(state));
+      } catch (e) {
+        console.warn("Could not save store state", e);
+      }
+    }
+  }
+
+  clearMockData() {
+    this.vehicles = [];
+    this.leads = [];
+    this.applications = [];
+    this.transfers = [];
+    this.valuations = [];
+    this.appointments = [];
+    this.serviceOrders = [];
+    this.consignments = [];
+    this.invoices = [];
+    this.inspections = [];
+    this.wholesaleListings = [];
+    this.wholesaleBids = [];
+    this.warrantyTickets = [];
+    this.aftersalesReminders = [];
+    this.notify();
+  }
+
+  restoreMockData() {
+    this.tenant = { ...INITIAL_TENANT };
+    this.users = [...INITIAL_USERS];
+    this.vehicles = [...INITIAL_VEHICLES];
+    this.leads = [...INITIAL_LEADS];
+    this.applications = [...INITIAL_APPLICATIONS];
+    this.transfers = [...initialTransfers];
+    this.valuations = [...initialValuations];
+    this.appointments = [...initialAppointments];
+    this.serviceOrders = [...initialServiceOrders];
+    this.consignments = [...initialConsignments];
+    this.invoices = [...initialInvoices];
+    this.subscription = { ...initialSubscription };
+    this.auditLogs = [...initialAuditLogs];
+    this.inspections = [...initialInspections];
+    this.wholesaleListings = [...initialWholesaleListings];
+    this.wholesaleBids = [];
+    this.warrantyTickets = [...initialWarrantyTickets];
+    this.aftersalesReminders = [...initialAftersalesReminders];
+    this.notify();
+  }
+
   subscribe(listener: () => void) {
     this.subscribers.push(listener);
     return () => {
@@ -482,6 +587,7 @@ class MemoryStore {
   }
 
   private notify() {
+    this.saveToStorage();
     this.subscribers.forEach((listener) => listener());
   }
 

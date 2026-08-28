@@ -45,3 +45,7 @@ export function formatRut(rut: string): string {
 
   return formattedBody ? `${formattedBody}-${dv}` : dv;
 }
+
+export const validateRUT = validateRut;
+export const formatRUT = formatRut;
+export const cleanRUT = cleanRut;
