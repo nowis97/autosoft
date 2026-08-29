@@ -1,0 +1,24 @@
+{
+  "date": "2026-08-29",
+  "url": "https://autosoft360.vercel.app",
+  "designScore": "A",
+  "aiSlopScore": "A",
+  "categoryGrades": {
+    "visualHierarchy": "A",
+    "typography": "A",
+    "spacingAndLayout": "A",
+    "colorAndContrast": "A",
+    "interactionStates": "A-",
+    "responsiveDesign": "A+",
+    "motionAndAnimation": "A-",
+    "contentQuality": "A+",
+    "aiSlopDetection": "A",
+    "performanceFeel": "A"
+  },
+  "metrics": {
+    "unitTestsPassing": 98,
+    "e2eTestsPassing": 11,
+    "mobileReady": true,
+    "chileanLocalization": true
+  }
+}
