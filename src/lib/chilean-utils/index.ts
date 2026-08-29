@@ -7,3 +7,4 @@ export * from "./service-costs";
 export * from "./tax-invoicing";
 export * from "./padron-decoder";
 export * from "./plate-scraper";
+export * from "./patentes-chile-api";

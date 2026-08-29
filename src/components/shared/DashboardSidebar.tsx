@@ -61,7 +61,7 @@ export function DashboardSidebar() {
   const tenant = store.getTenant();
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 min-h-screen border-r border-slate-800">
+    <aside className="hidden md:flex w-64 bg-slate-900 text-slate-300 flex-col justify-between shrink-0 min-h-screen border-r border-slate-800">
       <div>
         <div className="p-6 border-b border-slate-800">
           <div className="flex items-center gap-2.5">

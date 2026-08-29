@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scrapeChileanVehiclePlate } from "@/lib/chilean-utils/plate-scraper";
 
+export const runtime = "nodejs";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ plate: string }> }

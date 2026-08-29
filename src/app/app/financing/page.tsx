@@ -42,7 +42,7 @@ export default function FinancingDashboardPage() {
     setSelectedCertModal({
       applicantName: app.applicantName,
       applicantRut: app.applicantRut,
-      vehicleName: car ? `${car.brand} ${car.model} (${car.year})` : "Vehículo en Stock",
+      vehicleName: car ? (car.brand + " " + car.model + " (" + car.year + ")") : "Vehículo en Stock",
       vehiclePrice: car?.priceCash || 15000000,
       downPayment: app.downPayment,
       termMonths: app.termMonths,
@@ -68,55 +68,47 @@ export default function FinancingDashboardPage() {
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
             <span className="text-[11px] font-bold text-slate-400 uppercase">Tasa de Pre-Aprobación</span>
-            <div className="text-2xl font-black text-emerald-600 mt-1">88%</div>
-            <div className="text-xs text-emerald-600 font-semibold mt-1">Scoring RCI &le; 40%</div>
+            <div className="text-2xl font-black text-emerald-600 mt-1">87.5%</div>
+            <div className="text-xs text-emerald-600 mt-1">Dictamen en 45 segundos</div>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase">Monto Colocaciones</span>
-            <div className="text-2xl font-black text-blue-700 mt-1">
-              {formatCLP(apps.reduce((sum, a) => sum + (a.downPayment || 0) * 2.5, 0))}
-            </div>
-            <div className="text-xs text-slate-400 mt-1">Cartera en trámite</div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase">Comisión F&I Ganada</span>
+            <div className="text-2xl font-black text-blue-700 mt-1">$1.840.000</div>
+            <div className="text-xs text-slate-400 mt-1">Liquidación mensual acumulada</div>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-bold text-slate-400 uppercase">Comisiones Dealer F&I</span>
-            <div className="text-2xl font-black text-purple-600 mt-1">
-              {formatCLP(apps.length * 315000)}
-            </div>
-            <div className="text-xs text-purple-600 font-semibold mt-1">Ingreso neto adicional</div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase">Scoring Promedio RCI</span>
+            <div className="text-2xl font-black text-purple-700 mt-1">740 pts</div>
+            <div className="text-xs text-purple-600 mt-1">Riesgo Bajo / Aprobación A</div>
           </div>
         </div>
 
-        {/* Action Header */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              <Sparkles className="w-4 h-4" />
+        {/* Quick Simulation Banner */}
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-400" />
+              <h2 className="text-lg font-black tracking-tight">Simulador Express de Crédito en Vivo</h2>
             </div>
-            <div>
-              <div className="text-xs text-slate-400 font-bold uppercase">Motor de Decisión Crediticia</div>
-              <div className="font-extrabold text-slate-900 text-sm">
-                Evaluador Instantáneo Multi-Financiera
-              </div>
-            </div>
+            <p className="text-xs text-slate-300 max-w-xl">
+              Ingresa el RUT, renta y pie del cliente para obtener scoring instantáneo y tasas comparadas de Forum, Santander, Tanner y Autofin.
+            </p>
           </div>
-
           <Button
             onClick={() => setIsQuickEvalOpen(true)}
-            className="font-bold text-xs gap-1.5 shadow-sm bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-5 py-3 rounded-xl shadow-lg shrink-0"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Nueva Pre-Evaluación Rápida</span>
+            Nueva Evaluación Express
           </Button>
         </div>
 
-        {/* Partners Grid */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-          <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+        {/* Financial Partners Status */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
             <Building2 className="w-4 h-4 text-blue-600" />
-            <span>Entidades Financieras Conectadas y Tasas Preferenciales</span>
+            <span>Financieras Integradas en Tiempo Real</span>
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -134,7 +126,7 @@ export default function FinancingDashboardPage() {
           </div>
         </div>
 
-        {/* Applications Table */}
+        {/* Applications List (Responsive) */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
@@ -143,7 +135,8 @@ export default function FinancingDashboardPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* VISTA DESKTOP: Tabla (hidden md:block) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-700">
               <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase border-b border-slate-200">
                 <tr>
@@ -167,7 +160,7 @@ export default function FinancingDashboardPage() {
                         <div className="text-slate-400 font-mono text-[11px]">{app.applicantRut}</div>
                       </td>
                       <td className="py-3.5 px-4">
-                        {car ? `${car.brand} ${car.model} (${car.year})` : "Vehículo en stock"}
+                        {car ? (car.brand + " " + car.model + " (" + car.year + ")") : "Vehículo en stock"}
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="font-semibold">{formatCLP(app.downPayment)}</div>
@@ -203,6 +196,51 @@ export default function FinancingDashboardPage() {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* VISTA MOBILE: Tarjetas Táctiles (md:hidden) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {apps.map((app) => {
+              const car = vehicles.find((v) => v.id === app.vehicleId);
+              return (
+                <div key={app.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="font-bold text-slate-900 text-sm">{app.applicantName}</div>
+                      <div className="text-slate-400 font-mono text-xs">{app.applicantRut}</div>
+                    </div>
+                    <Badge variant={app.status === "APPROVED" || app.status === "SUBMITTED" ? "available" : "reserved"}>
+                      {app.status === "APPROVED" || app.status === "SUBMITTED" ? "Pre-Aprobado" : "En Evaluación"}
+                    </Badge>
+                  </div>
+
+                  <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 space-y-1">
+                    <div className="font-semibold text-slate-900">
+                      🚗 {car ? (car.brand + " " + car.model + " (" + car.year + ")") : "Vehículo en stock"}
+                    </div>
+                    <div className="flex items-center justify-between text-slate-500 pt-1">
+                      <span>Pie: {formatCLP(app.downPayment)} ({app.termMonths}m)</span>
+                      <span className="font-bold text-blue-700">Cuota: {formatCLP(app.estimatedMonthlyPayment)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <Badge variant="secondary" className="text-[10px] font-bold">
+                      {app.financialPartner || "SANTANDER"}
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleOpenCertificate(app)}
+                      className="text-xs font-bold gap-1 text-blue-700 border-blue-200 hover:bg-blue-50 h-8"
+                    >
+                      <Award className="w-3.5 h-3.5" />
+                      <span>Ver Certificado</span>
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

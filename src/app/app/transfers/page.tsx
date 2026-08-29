@@ -8,7 +8,7 @@ import { DashboardHeader } from "@/components/shared/DashboardHeader";
 import { LicensePlateBadge } from "@/components/shared/LicensePlateBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, FileCheck2, ShieldCheck, ArrowRight, Scale } from "lucide-react";
+import { Plus, FileCheck2, ShieldCheck, ArrowRight, Scale, CheckCircle2 } from "lucide-react";
 import { NotarialContractModal } from "@/components/transfers/NotarialContractModal";
 import { DeliveryChecklistModal } from "@/components/transfers/DeliveryChecklistModal";
 import { DigitalNotaryModal } from "@/components/transfers/DigitalNotaryModal";
@@ -58,43 +58,103 @@ export default function TransfersPage() {
 
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
             <span className="text-xs font-bold text-slate-500 uppercase">Tiempo Promedio de Firma</span>
-            <div className="text-2xl font-bold text-emerald-600 mt-1">&lt; 8 minutos</div>
-            <div className="text-xs text-slate-400 mt-1">vs 4 días en notaría física</div>
+            <div className="text-2xl font-bold text-slate-900 mt-1">8 minutos</div>
+            <div className="text-xs text-slate-400 mt-1">Ley 19.799 Firma Avanzada</div>
           </div>
 
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
-            <span className="text-xs font-bold text-slate-500 uppercase">Comisiones Seguros Ganadas</span>
-            <div className="text-2xl font-bold text-purple-600 mt-1">
-              {formatCLP(stats.totalInsuranceCommissions)}
+            <span className="text-xs font-bold text-slate-500 uppercase">Seguros SOAP / RCI Emitidos</span>
+            <div className="text-2xl font-bold text-purple-700 mt-1">
+              {transfers.filter((t) => t.insurancePolicy).length} pólizas
             </div>
-            <div className="text-xs text-purple-600 mt-1">Ingreso neto adicional</div>
+            <div className="text-xs text-slate-400 mt-1">Comisión integrada</div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-          <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="font-bold text-slate-900 text-sm">Órdenes de Transferencia</h3>
-              <p className="text-xs text-slate-500">Expedientes notariales generados en salón</p>
-            </div>
-
-            <Link href="/app/transfers/new">
-              <Button size="sm" className="gap-1.5 font-bold shadow-xs">
-                <Plus className="w-4 h-4" />
-                <span>Nueva Transferencia / Cierre de Venta</span>
-              </Button>
-            </Link>
+        {/* Transfers List */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 text-sm">Expedientes de Transferencia en Curso</h3>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* VISTA MOBILE: Tarjetas Táctiles (md:hidden) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {transfers.map((t) => {
+              const car = vehicles.find((v) => v.id === t.vehicleId);
+              return (
+                <div key={t.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="font-bold text-slate-900 text-sm">{t.buyerName}</div>
+                      <div className="text-slate-400 font-mono text-xs">{t.buyerRut}</div>
+                    </div>
+                    <Badge
+                      variant={t.status === "REGISTERED" ? "available" : "reserved"}
+                      className="text-[10px] font-bold"
+                    >
+                      {t.status === "REGISTERED" ? "Inscrito Registro Civil" : "Pendiente de Firma"}
+                    </Badge>
+                  </div>
+
+                  {car && (
+                    <div className="text-xs text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 flex items-center justify-between">
+                      <div className="font-semibold truncate">
+                        🚗 {car.brand} {car.model} ({car.year})
+                      </div>
+                      <LicensePlateBadge plate={car.licensePlate} size="sm" />
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between text-xs pt-1">
+                    <span className="text-slate-500">Precio Venta: <strong className="text-slate-900">{formatCLP(t.salePrice)}</strong></span>
+                    <span className="text-blue-700 font-bold">Impuesto 1.5%: {formatCLP(t.transferTax15)}</span>
+                  </div>
+
+                  {/* 1-Tap Mobile Actions */}
+                  <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 text-xs font-bold gap-1 text-blue-700 border-blue-200 hover:bg-blue-50 h-8"
+                      onClick={() => setSelectedNotaryTransfer({ transfer: t, vehicle: car || vehicles[0] })}
+                    >
+                      <Scale className="w-3.5 h-3.5" />
+                      <span>Mandato</span>
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs font-semibold h-8"
+                      onClick={() => setSelectedContractTransfer({ transfer: t, vehicle: car || vehicles[0] })}
+                    >
+                      Contrato
+                    </Button>
+
+                    {t.status !== "REGISTERED" && car && (
+                      <Button
+                        size="sm"
+                        className="text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white h-8"
+                        onClick={() => setSelectedDeliveryTransfer({ transfer: t, vehicle: car || vehicles[0] })}
+                      >
+                        Entregar
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* VISTA DESKTOP: Tabla (hidden md:block) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-700">
               <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-4">Folio / Fecha</th>
-                  <th className="py-3 px-4">Vehículo / Patente</th>
-                  <th className="py-3 px-4">Comprador (RUT)</th>
+                  <th className="py-3 px-4">Vehículo</th>
+                  <th className="py-3 px-4">Comprador</th>
                   <th className="py-3 px-4">Precio Venta</th>
-                  <th className="py-3 px-4">Impuesto (1.5%)</th>
+                  <th className="py-3 px-4">Impuesto 1.5% SII</th>
                   <th className="py-3 px-4">Seguro Asociado</th>
                   <th className="py-3 px-4">Estado Notarial</th>
                   <th className="py-3 px-4 text-right">Acciones</th>
@@ -106,17 +166,13 @@ export default function TransfersPage() {
 
                   return (
                     <tr key={t.id} className="hover:bg-slate-50/80">
-                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
-                        {t.id}
-                        <div className="text-[10px] text-slate-400 font-sans font-normal">
-                          {new Date(t.createdAt).toLocaleDateString("es-CL")}
-                        </div>
-                      </td>
-
                       <td className="py-3.5 px-4">
                         {car ? (
-                          <div className="space-y-1">
-                            <div className="font-bold text-slate-900">{car.brand} {car.model}</div>
+                          <div>
+                            <div className="font-bold text-slate-900 leading-tight">
+                              {car.brand} {car.model}
+                            </div>
+                            <div className="text-slate-400 text-[11px] mb-1">{car.year}</div>
                             <LicensePlateBadge plate={car.licensePlate} size="sm" />
                           </div>
                         ) : (

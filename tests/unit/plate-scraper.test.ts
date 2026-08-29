@@ -1,7 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { scrapeChileanVehiclePlate } from "@/lib/chilean-utils/plate-scraper";
 import { GET as getScrapedPlate } from "@/app/api/scraper/plate/[plate]/route";
 import { NextRequest } from "next/server";
+
+// bpchile externo: fuerza fallback en unit-test (sin red)
+vi.mock("@/lib/chilean-utils/patentes-chile-api", () => ({
+  queryBpChile: vi.fn().mockRejectedValue(new Error("bpchile bloqueado en unit-test")),
+}));
+
 
 describe("Chilean Plate Public Scraper (PRT, MTT, SII & Padrón)", () => {
   it("scrapes vehicle data for standard Chilean license plates with revision tecnica and SII valuation", async () => {

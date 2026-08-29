@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Lead, LeadStatus } from "@/types";
 import { store } from "@/lib/store";
 import { LeadDrawer } from "./LeadDrawer";
-import { Clock } from "lucide-react";
+import { Clock, MessageCircle, Phone } from "lucide-react";
 
 const COLUMNS: { id: LeadStatus; title: string; color: string }[] = [
   { id: "NEW", title: "Nuevos", color: "bg-blue-500" },
@@ -30,12 +30,28 @@ export function KanbanBoard() {
     }
   };
 
-  const channelBadges = {
+  const channelBadges: Record<string, string> = {
     WEB: "bg-blue-50 text-blue-700 border-blue-200",
     WHATSAPP: "bg-emerald-50 text-emerald-700 border-emerald-200",
     CHILEAUTOS: "bg-red-50 text-red-700 border-red-200",
     MERCADOLIBRE: "bg-amber-50 text-amber-800 border-amber-200",
     WALK_IN: "bg-purple-50 text-purple-700 border-purple-200",
+  };
+
+  const handleDirectWhatsApp = (e: React.MouseEvent, lead: Lead) => {
+    e.stopPropagation();
+    const cleanPhone = lead.phone.replace(/[^0-9]/g, "");
+    const car = vehicles.find((v) => v.id === lead.vehicleId);
+    const msg = encodeURIComponent(
+      "Hola " + lead.name + "! Te contacto de Automotora Oriente por tu consulta" +
+      (car ? " sobre el " + car.brand + " " + car.model + " (" + car.year + ")." : ".")
+    );
+    window.open("https://wa.me/" + cleanPhone + "?text=" + msg, "_blank");
+  };
+
+  const handleDirectCall = (e: React.MouseEvent, lead: Lead) => {
+    e.stopPropagation();
+    window.location.href = "tel:" + lead.phone;
   };
 
   return (
@@ -47,11 +63,11 @@ export function KanbanBoard() {
           return (
             <div
               key={col.id}
-              className="bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col min-h-[500px]"
+              className="bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col min-h-[400px] md:min-h-[500px]"
             >
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200">
                 <div className="flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${col.color}`} />
+                  <span className={"w-2.5 h-2.5 rounded-full " + col.color} />
                   <h3 className="font-bold text-xs uppercase tracking-wider text-slate-700">
                     {col.title}
                   </h3>
@@ -63,7 +79,7 @@ export function KanbanBoard() {
 
               <div className="space-y-2.5 flex-1">
                 {colLeads.length === 0 ? (
-                  <div className="h-32 flex items-center justify-center text-xs text-slate-400 text-center px-2">
+                  <div className="h-24 flex items-center justify-center text-xs text-slate-400 text-center px-2">
                     Sin prospectos
                   </div>
                 ) : (
@@ -74,16 +90,19 @@ export function KanbanBoard() {
                       <div
                         key={lead.id}
                         onClick={() => setSelectedLead(lead)}
-                        className="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer space-y-2"
+                        className="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer space-y-2.5"
                       >
                         <div className="flex items-start justify-between gap-1">
-                          <h4 className="font-bold text-sm text-slate-900 line-clamp-1">
-                            {lead.name}
-                          </h4>
+                          <div>
+                            <h4 className="font-bold text-sm text-slate-900 line-clamp-1">
+                              {lead.name}
+                            </h4>
+                            <div className="text-[11px] text-slate-500 mt-0.5">{lead.phone}</div>
+                          </div>
                           <span
-                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase shrink-0 ${
-                              channelBadges[lead.channel]
-                            }`}
+                            className={"text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase shrink-0 " + (
+                              channelBadges[lead.channel] || "bg-slate-50 text-slate-700"
+                            )}
                           >
                             {lead.channel}
                           </span>
@@ -96,12 +115,33 @@ export function KanbanBoard() {
                         )}
 
                         {lead.tradeInDetails && (
-                          <div className="text-[11px] text-amber-700 font-semibold truncate">
+                          <div className="text-[11px] text-amber-700 font-semibold truncate bg-amber-50/50 p-1 rounded">
                             🔄 Retoma: {lead.tradeInDetails.brand} {lead.tradeInDetails.model}
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+                        {/* 1-Tap Mobile Actions */}
+                        <div className="flex items-center gap-1.5 pt-1">
+                          <button
+                            type="button"
+                            onClick={(e) => handleDirectWhatsApp(e, lead)}
+                            className="flex-1 py-1.5 px-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center justify-center gap-1 shadow-2xs"
+                            title="WhatsApp 1-Toque"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => handleDirectCall(e, lead)}
+                            className="py-1.5 px-2.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center justify-center"
+                            title="Llamar"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {new Date(lead.createdAt).toLocaleDateString("es-CL", {
@@ -110,8 +150,8 @@ export function KanbanBoard() {
                             })}
                           </span>
 
-                          <span className="text-blue-600 font-bold text-xs hover:underline">
-                            Ver detalles →
+                          <span className="text-blue-600 font-bold hover:underline">
+                            Ficha →
                           </span>
                         </div>
                       </div>
