@@ -33,9 +33,6 @@ export async function scrapeChileanVehiclePlate(rawPlate: string): Promise<Scrap
   // 1. Attempt PatentesChile / Volante o Maleta direct HTML scrape
   try {
     const randomUA = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3500);
-
     const targetUrl = "https://www.patentechile.com/resultados/?ppu=" + normPlate;
     const res = await fetch(targetUrl, {
       headers: {
@@ -44,10 +41,8 @@ export async function scrapeChileanVehiclePlate(rawPlate: string): Promise<Scrap
         "Accept-Language": "es-CL,es;q=0.9,en;q=0.8",
         "Referer": "https://www.patentechile.com/",
       },
-      signal: controller.signal,
+      signal: AbortSignal.timeout(1200),
     }).catch(() => null);
-
-    clearTimeout(timeout);
 
     if (res && res.ok) {
       const html = await res.text();
