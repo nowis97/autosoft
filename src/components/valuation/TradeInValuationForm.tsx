@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { ValuationCondition } from "@/types";
 import { calculateVehicleValuation, ValuationResult } from "@/lib/chilean-utils/valuation";
-import { normalizeLicensePlate } from "@/lib/chilean-utils/license-plate";
+import { normalizeLicensePlate, validateLicensePlate } from "@/lib/chilean-utils/license-plate";
+import { fetchPlateScraper } from "@/lib/chilean-utils/plate-scraper";
 import { Button } from "@/components/ui/button";
-import { Calculator, Sparkles, Car } from "lucide-react";
+import { Calculator, Sparkles, Car, Loader2 } from "lucide-react";
 
 interface TradeInValuationFormProps {
   onValuationComputed: (data: {
@@ -30,6 +31,25 @@ export function TradeInValuationForm({ onValuationComputed }: TradeInValuationFo
   const [condition, setCondition] = useState<ValuationCondition>("GOOD");
   const [clientName, setClientName] = useState("Marcela Contreras");
   const [clientPhone, setClientPhone] = useState("+56 9 8234 5678");
+  const [isLoadingScraper, setIsLoadingScraper] = useState(false);
+
+  const handleLookupPlate = async (plateToQuery: string) => {
+    const norm = normalizeLicensePlate(plateToQuery);
+    if (!norm || norm.length < 5) return;
+    setIsLoadingScraper(true);
+    try {
+      const data = await fetchPlateScraper(norm);
+      setBrand(data.brand);
+      setModel(data.model);
+      setVersion(data.version || "1.6");
+      setYear(data.year);
+      setMileage(data.mileage || 40000);
+    } catch (e) {
+      console.warn("TradeIn scraper lookup error:", e);
+    } finally {
+      setIsLoadingScraper(false);
+    }
+  };
 
   const handleCalculate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,12 +93,32 @@ export function TradeInValuationForm({ onValuationComputed }: TradeInValuationFo
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <div>
-          <label className="font-bold text-slate-700 block mb-1">Patente Chilena</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="font-bold text-slate-700">Patente Chilena</label>
+            {isLoadingScraper && (
+              <span className="text-[10px] text-blue-600 font-bold flex items-center gap-1">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                <span>Consultando /api/scraper/plate...</span>
+              </span>
+            )}
+          </div>
           <input
             type="text"
             required
             value={licensePlate}
-            onChange={(e) => setLicensePlate(e.target.value.toUpperCase())}
+            onChange={(e) => {
+              const val = e.target.value.toUpperCase();
+              setLicensePlate(val);
+              const check = validateLicensePlate(val);
+              if (check.valid) {
+                handleLookupPlate(val);
+              }
+            }}
+            onBlur={() => {
+              if (licensePlate.length >= 5) {
+                handleLookupPlate(licensePlate);
+              }
+            }}
             placeholder="BBCL12 o CD1234"
             className="w-full h-10 px-3 border border-slate-200 rounded-lg font-mono font-bold uppercase tracking-wider"
           />

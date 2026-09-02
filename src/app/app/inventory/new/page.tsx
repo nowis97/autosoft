@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { store } from "@/lib/store";
-import { validateLicensePlate, normalizeLicensePlate, lookupVehicleByPlate } from "@/lib/chilean-utils";
+import { validateLicensePlate, normalizeLicensePlate } from "@/lib/chilean-utils";
+import { fetchPlateScraper } from "@/lib/chilean-utils/plate-scraper";
 import { DashboardHeader } from "@/components/shared/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,65 +26,70 @@ export const PRESET_VEHICLES = [
 export default function NewVehiclePage() {
   const router = useRouter();
 
-  // Initialize with preloaded Toyota RAV4
-  const initial = lookupVehicleByPlate("BBCL12");
-
-  const [licensePlate, setLicensePlate] = useState(initial.licensePlate);
-  const [brand, setBrand] = useState(initial.brand);
-  const [model, setModel] = useState(initial.model);
-  const [version, setVersion] = useState(initial.version);
-  const [year, setYear] = useState(initial.year.toString());
-  const [mileage, setMileage] = useState(initial.mileage.toString());
-  const [transmission, setTransmission] = useState<"MANUAL" | "AUTOMATICA">(initial.transmission);
-  const [fuelType, setFuelType] = useState<"BENCINA" | "DIESEL" | "HIBRIDO" | "ELECTRICO">(initial.fuelType);
-  const [bodyType, setBodyType] = useState<any>(initial.bodyType);
-  const [color, setColor] = useState(initial.color);
-  const [vin, setVin] = useState(initial.vin || "");
-  const [engineNumber, setEngineNumber] = useState(initial.engineNumber || "");
-  const [priceCash, setPriceCash] = useState(initial.priceCash.toString());
-  const [priceFinanced, setPriceFinanced] = useState(initial.priceFinanced.toString());
-  const [acquisitionCost, setAcquisitionCost] = useState(initial.acquisitionCost.toString());
-  const [description, setDescription] = useState(initial.description);
-  const [imageUrl, setImageUrl] = useState(initial.imageUrl);
+  const [licensePlate, setLicensePlate] = useState("BBCL12");
+  const [brand, setBrand] = useState("Toyota");
+  const [model, setModel] = useState("RAV4");
+  const [version, setVersion] = useState("2.0 LE 4x2");
+  const [year, setYear] = useState("2022");
+  const [mileage, setMileage] = useState("45000");
+  const [transmission, setTransmission] = useState<"MANUAL" | "AUTOMATICA">("AUTOMATICA");
+  const [fuelType, setFuelType] = useState<"BENCINA" | "DIESEL" | "HIBRIDO" | "ELECTRICO">("BENCINA");
+  const [bodyType, setBodyType] = useState<any>("SUV");
+  const [color, setColor] = useState("Plata Metálico");
+  const [vin, setVin] = useState("JTMBREFX7ND129482");
+  const [engineNumber, setEngineNumber] = useState("M20A-FKS-99214");
+  const [priceCash, setPriceCash] = useState("18990000");
+  const [priceFinanced, setPriceFinanced] = useState("17990000");
+  const [acquisitionCost, setAcquisitionCost] = useState("15500000");
+  const [description, setDescription] = useState("Toyota RAV4 2.0 LE 4x2 año 2022. Único dueño, mantenciones oficiales.");
+  const [imageUrl, setImageUrl] = useState("https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80");
 
   const [publishWeb, setPublishWeb] = useState(true);
   const [publishML, setPublishML] = useState(true);
   const [publishChileautos, setPublishChileautos] = useState(true);
 
   const [errorMsg, setErrorMsg] = useState("");
-  const [successBanner, setSuccessBanner] = useState("✨ Datos precargados listos a través de la patente. Modifica lo que desees o publica de inmediato.");
+  const [successBanner, setSuccessBanner] = useState("✨ Datos precargados listos a través de /api/scraper/plate. Modifica lo que desees o publica de inmediato.");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingPlate, setIsLoadingPlate] = useState(false);
 
   const plateValidation = validateLicensePlate(licensePlate);
 
-  // Autofill all vehicle specifications from license plate
-  const applyAutofillByPlate = (targetPlate: string) => {
+  // Autofill all vehicle specifications from /api/scraper/plate/[plate]
+  const applyAutofillByPlate = async (targetPlate: string) => {
     const norm = normalizeLicensePlate(targetPlate);
     if (!norm) return;
 
-    const data = lookupVehicleByPlate(norm);
-    setLicensePlate(data.licensePlate);
-    setBrand(data.brand);
-    setModel(data.model);
-    setVersion(data.version);
-    setYear(data.year.toString());
-    setMileage(data.mileage.toString());
-    setTransmission(data.transmission);
-    setFuelType(data.fuelType);
-    setBodyType(data.bodyType);
-    setColor(data.color);
-    if (data.vin) setVin(data.vin);
-    if (data.engineNumber) setEngineNumber(data.engineNumber);
-    setPriceCash(data.priceCash.toString());
-    setPriceFinanced(data.priceFinanced.toString());
-    setAcquisitionCost(data.acquisitionCost.toString());
-    setDescription(data.description);
-    setImageUrl(data.imageUrl);
+    setIsLoadingPlate(true);
     setErrorMsg("");
 
-    const sourceLabel = data.source === "CAV_EXACT_MATCH" ? "Padrón Digital (CAV)" : "Series Registro Civil";
-    setSuccessBanner("✅ ¡Datos de " + data.brand + " " + data.model + " " + data.year + " precargados desde " + sourceLabel + "!");
-    setTimeout(() => setSuccessBanner(""), 4000);
+    try {
+      const data = await fetchPlateScraper(norm);
+      setLicensePlate(data.licensePlate);
+      setBrand(data.brand);
+      setModel(data.model);
+      setVersion(data.version);
+      setYear(data.year.toString());
+      setMileage(data.mileage.toString());
+      setTransmission(data.transmission);
+      setFuelType(data.fuelType);
+      setBodyType(data.bodyType);
+      setColor(data.color);
+      if (data.vin) setVin(data.vin);
+      if (data.engineNumber) setEngineNumber(data.engineNumber);
+      setPriceCash(data.priceCash.toString());
+      setPriceFinanced(data.priceFinanced.toString());
+      setAcquisitionCost(data.acquisitionCost.toString());
+      setDescription(data.description);
+      if (data.imageUrl) setImageUrl(data.imageUrl);
+
+      setSuccessBanner(`✅ ¡Datos de ${data.brand} ${data.model} (${data.year}) precargados vía /api/scraper/plate/[plate]!`);
+      setTimeout(() => setSuccessBanner(""), 4000);
+    } catch (err: any) {
+      setErrorMsg("Error al consultar la patente vía /api/scraper/plate.");
+    } finally {
+      setIsLoadingPlate(false);
+    }
   };
 
   const handlePlateChange = (e: React.ChangeEvent<HTMLInputElement>) => {

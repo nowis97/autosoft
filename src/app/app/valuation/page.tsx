@@ -8,13 +8,19 @@ import { ValuationResultCard } from "@/components/valuation/ValuationResultCard"
 import { TradeInProposalModal } from "@/components/valuation/TradeInProposalModal";
 import { LicensePlateBadge } from "@/components/shared/LicensePlateBadge";
 import { formatCLP } from "@/lib/chilean-utils/financing";
-import { ValuationResult } from "@/lib/chilean-utils/valuation";
-import { Calculator, TrendingUp, CheckCircle2, Clock, Car } from "lucide-react";
+import { ValuationResult, calculateVehicleValuation } from "@/lib/chilean-utils/valuation";
+import { fetchPlateScraper } from "@/lib/chilean-utils/plate-scraper";
+import { normalizeLicensePlate } from "@/lib/chilean-utils/license-plate";
+import { Calculator, TrendingUp, CheckCircle2, Clock, Car, Sparkles, Send, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ValuationPage() {
   const tenant = store.getTenant();
-  const valuations = store.getValuations();
+  const vehicles = store.getVehicles();
+
+  const [gaiaQuery, setGaiaQuery] = useState("");
+  const [isGaiaThinking, setIsGaiaThinking] = useState(false);
+  const [selectedStockVehicle, setSelectedStockVehicle] = useState("");
 
   const [activeValuation, setActiveValuation] = useState<{
     licensePlate: string;
@@ -52,6 +58,46 @@ export default function ValuationPage() {
 
   const [isProposalOpen, setIsProposalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleGaiaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gaiaQuery.trim()) return;
+
+    setIsGaiaThinking(true);
+
+    // Extract potential plate from natural language query
+    const words = gaiaQuery.split(/\s+/);
+    const plateCandidate = words.find((w) => /^[A-Za-z]{2,4}\d{2,4}$/.test(w)) || "GAIA01";
+    const normPlate = normalizeLicensePlate(plateCandidate);
+
+    try {
+      const scraped = await fetchPlateScraper(normPlate);
+      const computedResult = calculateVehicleValuation({
+        brand: scraped.brand,
+        model: scraped.model,
+        year: scraped.year,
+        mileage: scraped.mileage || 45000,
+        condition: "GOOD",
+      });
+
+      setActiveValuation({
+        licensePlate: scraped.licensePlate,
+        brand: scraped.brand,
+        model: scraped.model,
+        version: scraped.version || "1.6",
+        year: scraped.year,
+        mileage: scraped.mileage || 45000,
+        condition: "GOOD",
+        clientName: "Consulta GAIA IA",
+        clientPhone: "+56 9 9999 8888",
+        result: computedResult,
+      });
+    } catch (err) {
+      console.warn("GAIA plate scraper error:", err);
+    } finally {
+      setIsGaiaThinking(false);
+    }
+  };
 
   const handleValuationComputed = (data: any) => {
     setActiveValuation(data);
@@ -95,66 +141,93 @@ export default function ValuationPage() {
       priceFinanced: Math.round(activeValuation.result.estimatedMarketPrice * 0.95),
       acquisitionCost: offerAmount,
       status: "IN_MAINTENANCE",
-      description: `Vehículo recibido en parte de pago de ${activeValuation.clientName || "cliente"}. En proceso de preparación y revisión técnica oficial.`,
+      pipelineStage: "REVISION_MECANICA",
+      description: `Vehículo recibido en parte de pago de ${activeValuation.clientName || "cliente"}.`,
       features: ["Aire Acondicionado", "Cierre Centralizado", "Frenos ABS", "Doble Airbag"],
-      images: [
-        "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
-      ],
+      images: ["https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&auto=format&fit=crop&q=80"],
       publishedToWeb: false,
       publishedToMercadolibre: false,
       publishedToChileautos: false,
       publishedToYapo: false,
     });
 
-    setSuccessMessage(`¡Vehículo ${created.brand} ${created.model} (${created.licensePlate}) ingresado exitosamente al Inventario DMS como auto en preparación!`);
+    setSuccessMessage(`¡Vehículo ingresado al stock (${created.brand} ${created.model}) y enviado a Revisión Mecánica!`);
     setTimeout(() => setSuccessMessage(null), 5000);
   };
 
   return (
     <div className="flex-1 flex flex-col">
       <DashboardHeader
-        title="Motor de Tasación Inteligente & Retomas (Pricing)"
-        subtitle="Valuación predictiva de autos en parte de pago, rangos de oferta comercial y conversión directa a stock"
+        title="Tasador Inteligente GAIA & Retoma de Vehículos"
+        subtitle="Calcula el valor de mercado en Chile con ajustes por kilometraje, condición y margen comercial"
       />
 
       <main className="p-6 max-w-7xl w-full space-y-6">
-        {/* KPI Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <div className="text-[11px] font-bold text-slate-400 uppercase">Tasaciones Realizadas</div>
-            <div className="text-2xl font-black text-slate-900 mt-1">{valuations.length} autos</div>
-            <div className="text-xs text-emerald-600 font-semibold mt-1">Cotizadas este mes</div>
-          </div>
-
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <div className="text-[11px] font-bold text-slate-400 uppercase">Retomas Aceptadas</div>
-            <div className="text-2xl font-black text-blue-600 mt-1">
-              {valuations.filter((v) => v.status === "ACCEPTED").length} unidades
+        {/* GAIA Natural Language Assistant Card */}
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 rounded-3xl text-white shadow-xl border border-indigo-500/20 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-400/30 flex items-center justify-center">
+                <Bot className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base flex items-center gap-2">
+                  <span>Tasador Conversacional GAIA IA</span>
+                  <span className="px-2 py-0.5 rounded-md bg-indigo-500 text-white text-[10px] font-black uppercase">Live</span>
+                </h3>
+                <p className="text-xs text-indigo-200/80">Escribe en lenguaje natural o selecciona un vehículo de tu inventario</p>
+              </div>
             </div>
-            <div className="text-xs text-slate-400 mt-1">Ingresadas a stock DMS</div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedStockVehicle}
+                onChange={(e) => {
+                  setSelectedStockVehicle(e.target.value);
+                  const found = vehicles.find((v) => v.id === e.target.value);
+                  if (found) {
+                    setGaiaQuery(`Tasar ${found.brand} ${found.model} ${found.year} con ${found.mileage} km patente ${found.licensePlate}`);
+                  }
+                }}
+                className="bg-indigo-900/60 border border-indigo-400/30 rounded-xl px-3 py-2 text-xs font-semibold text-indigo-100 focus:outline-none"
+              >
+                <option value="">Tasar desde inventario...</option>
+                {vehicles.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.brand} {v.model} ({v.licensePlate})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <div className="text-[11px] font-bold text-slate-400 uppercase">Margen Promedio Retoma</div>
-            <div className="text-2xl font-black text-emerald-600 mt-1">12.5%</div>
-            <div className="text-xs text-slate-400 mt-1">Sobre PVP de mercado</div>
-          </div>
-
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <div className="text-[11px] font-bold text-slate-400 uppercase">Tiempo Promedio de Tasación</div>
-            <div className="text-2xl font-black text-purple-600 mt-1">&lt; 30 seg</div>
-            <div className="text-xs text-slate-400 mt-1">vs 2 horas tradicional</div>
-          </div>
+          <form onSubmit={handleGaiaSubmit} className="flex gap-2">
+            <input
+              type="text"
+              placeholder="ej. 'Tasar Mazda CX-5 2021 45.000 km excelente estado' o ingresa patente..."
+              value={gaiaQuery}
+              onChange={(e) => setGaiaQuery(e.target.value)}
+              className="flex-1 bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-indigo-200/50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white/15 transition-all"
+            />
+            <Button
+              type="submit"
+              disabled={isGaiaThinking || !gaiaQuery.trim()}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-5 rounded-2xl shadow-lg gap-2"
+            >
+              {isGaiaThinking ? <Sparkles className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              <span>Tasar</span>
+            </Button>
+          </form>
         </div>
 
         {successMessage && (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-900 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-center gap-3 text-sm font-semibold animate-in fade-in">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <span>{successMessage}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-6 space-y-6">
             <TradeInValuationForm onValuationComputed={handleValuationComputed} />
           </div>
@@ -173,85 +246,36 @@ export default function ValuationPage() {
                 onConvertToInventory={handleConvertToInventory}
               />
             ) : (
-              <div className="p-12 bg-slate-100 rounded-2xl text-center text-xs text-slate-400">
-                Completa los datos para ver la tasación predictiva
+              <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-2xs text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
+                  <Calculator className="w-6 h-6" />
+                </div>
+                <h3 className="font-extrabold text-slate-800 text-base">Esperando datos de tasación</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Completa el formulario a la izquierda o escribe en GAIA IA para calcular los valores de mercado.
+                </p>
               </div>
             )}
           </div>
         </div>
-
-        {/* History Table */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-6 space-y-4">
-          <h3 className="font-bold text-slate-900 text-sm">Historial de Tasaciones & Retomas</h3>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
-                <tr>
-                  <th className="py-3 px-3">Patente</th>
-                  <th className="py-3 px-3">Vehículo</th>
-                  <th className="py-3 px-3">Cliente</th>
-                  <th className="py-3 px-3">Valor Mercado</th>
-                  <th className="py-3 px-3">Oferta Recomendada</th>
-                  <th className="py-3 px-3">Margen Proyectado</th>
-                  <th className="py-3 px-3">Estado</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                {valuations.map((val) => (
-                  <tr key={val.id} className="hover:bg-slate-50">
-                    <td className="py-3 px-3">
-                      <LicensePlateBadge plate={val.licensePlate} size="sm" />
-                    </td>
-                    <td className="py-3 px-3 font-bold text-slate-900">
-                      {val.brand} {val.model} ({val.year})
-                    </td>
-                    <td className="py-3 px-3">
-                      <div>{val.clientName || "Particular"}</div>
-                      <div className="text-[10px] text-slate-400">{val.clientPhone}</div>
-                    </td>
-                    <td className="py-3 px-3 font-bold text-blue-600">
-                      {formatCLP(val.estimatedMarketPrice)}
-                    </td>
-                    <td className="py-3 px-3 font-extrabold text-emerald-600">
-                      {formatCLP(val.recommendedOffer)}
-                    </td>
-                    <td className="py-3 px-3 text-slate-500">
-                      {formatCLP(val.expectedGrossProfitCLP)}
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        val.status === "ACCEPTED"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}>
-                        {val.status === "ACCEPTED" ? "Ingresado a Stock" : "Oferta Enviada"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {activeValuation && (
-          <TradeInProposalModal
-            isOpen={isProposalOpen}
-            onClose={() => setIsProposalOpen(false)}
-            tenant={tenant}
-            licensePlate={activeValuation.licensePlate}
-            brand={activeValuation.brand}
-            model={activeValuation.model}
-            version={activeValuation.version}
-            year={activeValuation.year}
-            mileage={activeValuation.mileage}
-            clientName={activeValuation.clientName}
-            clientPhone={activeValuation.clientPhone}
-            result={activeValuation.result}
-          />
-        )}
       </main>
+
+      {activeValuation && (
+        <TradeInProposalModal
+          isOpen={isProposalOpen}
+          onClose={() => setIsProposalOpen(false)}
+          tenant={tenant}
+          licensePlate={activeValuation.licensePlate}
+          brand={activeValuation.brand}
+          model={activeValuation.model}
+          version={activeValuation.version}
+          year={activeValuation.year}
+          mileage={activeValuation.mileage}
+          clientName={activeValuation.clientName}
+          clientPhone={activeValuation.clientPhone}
+          result={activeValuation.result}
+        />
+      )}
     </div>
   );
 }

@@ -129,3 +129,22 @@ export async function scrapeChileanVehiclePlate(rawPlate: string): Promise<Scrap
     rawSource: fallback.source === "CAV_EXACT_MATCH" ? "CAV_LOCAL_PADRON" : "REGISTRO_CIVIL_CHILE_SERIES",
   };
 }
+
+/**
+ * Client-side helper that queries the unified /api/scraper/plate/[plate] endpoint
+ */
+export async function fetchPlateScraper(rawPlate: string): Promise<ScrapedVehicleResult> {
+  const normPlate = normalizeLicensePlate(rawPlate);
+  try {
+    const res = await fetch(`/api/scraper/plate/${encodeURIComponent(normPlate)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.vehicle) {
+        return data.vehicle;
+      }
+    }
+  } catch (e) {
+    console.warn("Client fetch to /api/scraper/plate failed, fallback to local scraper:", e);
+  }
+  return scrapeChileanVehiclePlate(normPlate);
+}

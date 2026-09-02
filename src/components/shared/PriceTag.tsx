@@ -6,6 +6,7 @@ interface PriceTagProps {
   priceCash: number;
   priceFinanced?: number;
   showMonthlyQuote?: boolean;
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 

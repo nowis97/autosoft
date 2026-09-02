@@ -19,6 +19,13 @@ import {
   WholesaleBid,
   WarrantyTicket,
   AftersalesReminder,
+  DealerTask,
+  DealerTaskPriority,
+  DealerTaskDepartment,
+  DealerTaskStatus,
+  SaleApprovalRecord,
+  CommissionRule,
+  VehiclePipelineStage,
 } from "@/types";
 import {
   INITIAL_TENANT,
@@ -452,10 +459,134 @@ const initialConsignments: Consignment[] = [
   },
 ];
 
+const initialDealerTasks: DealerTask[] = [
+  {
+    id: "tsk-1",
+    tenantId: "tenant-oriente-1",
+    vehicleId: "veh-1",
+    vehiclePlate: "BBCL12",
+    vehicleModel: "Toyota RAV4 2021",
+    vehicleYear: 2021,
+    vehicleThumbnail: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=300&auto=format&fit=crop&q=80",
+    title: "Inspección pre-compra mecánica",
+    description: "Vienen a hacerle una inspección a la RAV4 a las 17:00 hrs por técnico Autofact.",
+    priority: "ALTA",
+    department: "TALLER",
+    status: "PENDIENTE",
+    dueDate: "2026-08-25T17:00:00Z",
+    assignedUserId: "user-2",
+    assignedUserName: "Camila Morales",
+    createdAt: "2026-08-20T10:00:00Z",
+  },
+  {
+    id: "tsk-2",
+    tenantId: "tenant-oriente-1",
+    vehicleId: "veh-2",
+    vehiclePlate: "PPGH38",
+    vehicleModel: "Mazda CX-5 2022",
+    vehicleYear: 2022,
+    vehicleThumbnail: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=300&auto=format&fit=crop&q=80",
+    title: "Entregar nota de venta y mandato notarial",
+    description: "Cliente viene a firmar el mandato de transferencia digital Ley 19.799.",
+    priority: "MEDIA",
+    department: "DOCUMENTACION",
+    status: "PENDIENTE",
+    dueDate: "2026-08-24T12:00:00Z",
+    assignedUserId: "user-3",
+    assignedUserName: "Matías Silva",
+    createdAt: "2026-08-19T09:00:00Z",
+  },
+  {
+    id: "tsk-3",
+    tenantId: "tenant-oriente-1",
+    title: "Re-contacto Felipe Gutiérrez (Financiamiento Forum)",
+    description: "Nos dijo que lo llamemos hoy ya que recibía la aprobación de su crédito automotriz.",
+    priority: "MEDIA",
+    department: "VENTA",
+    status: "EN_PROGRESO",
+    dueDate: "2026-08-28T15:00:00Z",
+    assignedUserId: "user-2",
+    assignedUserName: "Camila Morales",
+    createdAt: "2026-08-22T11:00:00Z",
+  },
+  {
+    id: "tsk-4",
+    tenantId: "tenant-oriente-1",
+    vehicleId: "veh-4",
+    vehiclePlate: "LKJW23",
+    vehicleModel: "Suzuki Baleno 2020",
+    vehicleYear: 2020,
+    vehicleThumbnail: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=300&auto=format&fit=crop&q=80",
+    title: "Revisar auto y certificación 50 puntos",
+    description: "Checklist final de recepción en yard mode y control de niveles.",
+    priority: "MEDIA",
+    department: "GENERAL",
+    status: "POR_APROBAR",
+    dueDate: "2026-08-26T18:00:00Z",
+    assignedUserId: "user-1",
+    assignedUserName: "Rodrigo Valenzuela",
+    createdAt: "2026-08-21T14:00:00Z",
+  },
+  {
+    id: "tsk-5",
+    tenantId: "tenant-oriente-1",
+    vehicleId: "veh-6",
+    vehiclePlate: "CD1234",
+    vehicleModel: "Jeep Grand Cherokee 2019",
+    vehicleYear: 2019,
+    title: "Acta de entrega y póliza de garantía Ley 21.398",
+    description: "Entrega física de llaves y firma digital del acta de entrega.",
+    priority: "ALTA",
+    department: "VENTA",
+    status: "COMPLETADA",
+    dueDate: "2026-08-25T16:00:00Z",
+    completedAt: "2026-08-25T16:30:00Z",
+    assignedUserId: "user-1",
+    assignedUserName: "Rodrigo Valenzuela",
+    createdAt: "2026-08-24T10:00:00Z",
+  },
+];
+
+const initialSaleApprovals: SaleApprovalRecord[] = [
+  {
+    id: "appr-1",
+    tenantId: "tenant-oriente-1",
+    vehicleId: "veh-2",
+    buyerName: "Felipe Gutiérrez Albornoz",
+    buyerRut: "15.678.901-2",
+    buyerEmail: "felipe.gutierrez@correo.cl",
+    salePriceCLP: 18990000,
+    paymentMethod: "CREDITO",
+    salesRepUserId: "user-2",
+    salesRepName: "Camila Morales",
+    commissionRule: {
+      base: "MARGEN_BRUTO",
+      type: "PERCENTAGE",
+      percentage: 10,
+      splitEqually: false,
+    },
+    calculatedCommissionCLP: 249000,
+    marginCLP: 2490000,
+    status: "PENDING",
+    createdAt: "2026-08-28T11:00:00Z",
+  },
+];
+
 class MemoryStore {
   private tenant: Tenant = { ...INITIAL_TENANT };
   private users: User[] = [...INITIAL_USERS];
-  private vehicles: Vehicle[] = [...INITIAL_VEHICLES];
+  private vehicles: Vehicle[] = INITIAL_VEHICLES.map((v) => ({
+    ...v,
+    pipelineStage:
+      v.pipelineStage ||
+      (v.status === "SOLD"
+        ? "VENDIDO"
+        : v.status === "RESERVED"
+        ? "RESERVADO"
+        : v.status === "IN_MAINTENANCE"
+        ? "PREPARACION"
+        : "PUBLICADO"),
+  }));
   private leads: Lead[] = [...INITIAL_LEADS];
   private applications: FinancingApplication[] = [...INITIAL_APPLICATIONS];
   private transfers: TransferOrder[] = [...initialTransfers];
@@ -471,6 +602,8 @@ class MemoryStore {
   private wholesaleBids: WholesaleBid[] = [];
   private warrantyTickets: WarrantyTicket[] = [...initialWarrantyTickets];
   private aftersalesReminders: AftersalesReminder[] = [...initialAftersalesReminders];
+  private tasks: DealerTask[] = [...initialDealerTasks];
+  private saleApprovals: SaleApprovalRecord[] = [...initialSaleApprovals];
   private nextFolio = 1043;
   private subscribers: Array<() => void> = [];
 
@@ -503,6 +636,8 @@ class MemoryStore {
         if (parsed.wholesaleBids) this.wholesaleBids = parsed.wholesaleBids;
         if (parsed.warrantyTickets) this.warrantyTickets = parsed.warrantyTickets;
         if (parsed.aftersalesReminders) this.aftersalesReminders = parsed.aftersalesReminders;
+        if (parsed.tasks) this.tasks = parsed.tasks;
+        if (parsed.saleApprovals) this.saleApprovals = parsed.saleApprovals;
       }
     } catch (e) {
       console.warn("Could not load stored state", e);
@@ -531,6 +666,8 @@ class MemoryStore {
           wholesaleBids: this.wholesaleBids,
           warrantyTickets: this.warrantyTickets,
           aftersalesReminders: this.aftersalesReminders,
+          tasks: this.tasks,
+          saleApprovals: this.saleApprovals,
         };
         localStorage.setItem("autosoft_db_state_v1", JSON.stringify(state));
       } catch (e) {
@@ -554,13 +691,26 @@ class MemoryStore {
     this.wholesaleBids = [];
     this.warrantyTickets = [];
     this.aftersalesReminders = [];
+    this.tasks = [];
+    this.saleApprovals = [];
     this.notify();
   }
 
   restoreMockData() {
     this.tenant = { ...INITIAL_TENANT };
     this.users = [...INITIAL_USERS];
-    this.vehicles = [...INITIAL_VEHICLES];
+    this.vehicles = INITIAL_VEHICLES.map((v) => ({
+      ...v,
+      pipelineStage:
+        v.pipelineStage ||
+        (v.status === "SOLD"
+          ? "VENDIDO"
+          : v.status === "RESERVED"
+          ? "RESERVADO"
+          : v.status === "IN_MAINTENANCE"
+          ? "PREPARACION"
+          : "PUBLICADO"),
+    }));
     this.leads = [...INITIAL_LEADS];
     this.applications = [...INITIAL_APPLICATIONS];
     this.transfers = [...initialTransfers];
@@ -576,6 +726,8 @@ class MemoryStore {
     this.wholesaleBids = [];
     this.warrantyTickets = [...initialWarrantyTickets];
     this.aftersalesReminders = [...initialAftersalesReminders];
+    this.tasks = [...initialDealerTasks];
+    this.saleApprovals = [...initialSaleApprovals];
     this.notify();
   }
 
@@ -611,6 +763,10 @@ class MemoryStore {
 
   getVehicleById(id: string): Vehicle | undefined {
     return this.vehicles.find((v) => v.id === id);
+  }
+
+  getVehicle(id: string): Vehicle | undefined {
+    return this.getVehicleById(id);
   }
 
   createVehicle(data: Omit<Vehicle, "id" | "createdAt" | "updatedAt">): Vehicle {
@@ -1314,6 +1470,146 @@ class MemoryStore {
       return true;
     }
     return false;
+  }
+
+  // --- Dealer Tasks Methods ---
+  getTasks(tenantId?: string): DealerTask[] {
+    if (!tenantId) return this.tasks;
+    return this.tasks.filter((t) => t.tenantId === tenantId);
+  }
+
+  getTask(id: string): DealerTask | undefined {
+    return this.tasks.find((t) => t.id === id);
+  }
+
+  createTask(taskData: Omit<DealerTask, "id" | "createdAt">): DealerTask {
+    const newTask: DealerTask = {
+      ...taskData,
+      id: `tsk-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      createdAt: new Date().toISOString(),
+    };
+    this.tasks.unshift(newTask);
+    this.notify();
+    return newTask;
+  }
+
+  updateTask(id: string, updates: Partial<DealerTask>): DealerTask | null {
+    const index = this.tasks.findIndex((t) => t.id === id);
+    if (index === -1) return null;
+    const current = this.tasks[index];
+    const updated: DealerTask = {
+      ...current,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    if (updates.status === "COMPLETADA" && !current.completedAt) {
+      updated.completedAt = new Date().toISOString();
+    }
+    this.tasks[index] = updated;
+    this.notify();
+    return updated;
+  }
+
+  deleteTask(id: string): boolean {
+    const prevLen = this.tasks.length;
+    this.tasks = this.tasks.filter((t) => t.id !== id);
+    if (this.tasks.length !== prevLen) {
+      this.notify();
+      return true;
+    }
+    return false;
+  }
+
+  // --- Vehicle Pipeline Methods ---
+  updateVehiclePipelineStage(vehicleId: string, stage: VehiclePipelineStage): Vehicle | null {
+    const v = this.vehicles.find((veh) => veh.id === vehicleId);
+    if (!v) return null;
+    v.pipelineStage = stage;
+    if (stage === "VENDIDO") v.status = "SOLD";
+    else if (stage === "RESERVADO") v.status = "RESERVED";
+    else if (stage === "REVISION_MECANICA" || stage === "PREPARACION") v.status = "IN_MAINTENANCE";
+    else if (stage === "PUBLICADO" || stage === "LISTO_FOTO") v.status = "AVAILABLE";
+    v.updatedAt = new Date().toISOString();
+    this.notify();
+    return v;
+  }
+
+  // --- Sale Approvals & Commission Methods ---
+  getSaleApprovals(tenantId?: string): SaleApprovalRecord[] {
+    if (!tenantId) return this.saleApprovals;
+    return this.saleApprovals.filter((s) => s.tenantId === tenantId);
+  }
+
+  getSaleApproval(id: string): SaleApprovalRecord | undefined {
+    return this.saleApprovals.find((s) => s.id === id);
+  }
+
+  createSaleApproval(recordData: Omit<SaleApprovalRecord, "id" | "createdAt" | "status">): SaleApprovalRecord {
+    const newApproval: SaleApprovalRecord = {
+      ...recordData,
+      id: `appr-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
+    };
+    this.saleApprovals.unshift(newApproval);
+    this.notify();
+    return newApproval;
+  }
+
+  approveSale(approvalId: string, dteFolio?: number): SaleApprovalRecord | null {
+    const approval = this.saleApprovals.find((a) => a.id === approvalId);
+    if (!approval) return null;
+    approval.status = "APPROVED";
+    approval.approvedAt = new Date().toISOString();
+    if (dteFolio) approval.dteFolio = dteFolio;
+
+    // Update vehicle to sold and pipeline to VENDIDO
+    const vehicle = this.vehicles.find((v) => v.id === approval.vehicleId);
+    if (vehicle) {
+      vehicle.status = "SOLD";
+      vehicle.pipelineStage = "VENDIDO";
+      vehicle.updatedAt = new Date().toISOString();
+    }
+
+    this.notify();
+    return approval;
+  }
+
+  rejectSale(approvalId: string): SaleApprovalRecord | null {
+    const approval = this.saleApprovals.find((a) => a.id === approvalId);
+    if (!approval) return null;
+    approval.status = "REJECTED";
+    this.notify();
+    return approval;
+  }
+
+  getSellersLeaderboard(tenantId?: string) {
+    const users = this.getUsers().filter((u) => u.role === "DEALER_SALES_REP" || u.role === "DEALER_OWNER");
+    const approvedSales = this.getSaleApprovals(tenantId).filter((a) => a.status === "APPROVED");
+    const totalVolume = approvedSales.reduce((sum, s) => sum + s.salePriceCLP, 0);
+
+    return users.map((user, index) => {
+      const userSales = approvedSales.filter((s) => s.salesRepUserId === user.id);
+      const userVolume = userSales.reduce((sum, s) => sum + s.salePriceCLP, 0);
+      const unitsSold = userSales.length;
+      const totalCommissions = userSales.reduce((sum, s) => sum + s.calculatedCommissionCLP, 0);
+      const avgTicket = unitsSold > 0 ? Math.round(userVolume / unitsSold) : 0;
+      const sharePercentage = totalVolume > 0 ? Math.round((userVolume / totalVolume) * 100) : 0;
+      const commissionRate = userVolume > 0 ? Number(((totalCommissions / userVolume) * 100).toFixed(1)) : 0;
+
+      return {
+        rank: index + 1,
+        userId: user.id,
+        userName: user.name,
+        role: user.role,
+        totalSalesCLP: userVolume,
+        sharePercentage,
+        unitsSold,
+        totalCommissionsCLP: totalCommissions,
+        avgTicketCLP: avgTicket,
+        commissionRate,
+      };
+    }).sort((a, b) => b.totalSalesCLP - a.totalSalesCLP).map((item, idx) => ({ ...item, rank: idx + 1 }));
   }
 
   getStats() {

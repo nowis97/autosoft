@@ -115,3 +115,22 @@ export function generateF29AccountingExport(summary: F29MonthlySummary): F29Expo
     summary,
   };
 }
+
+export function calculateF29Summary(invoices: InvoiceDTE[], serviceExpenses: ServiceOrder[]) {
+  const currentPeriod = new Date().toISOString().slice(0, 7);
+  const summary = calculateMonthlyF29Summary({
+    period: currentPeriod,
+    invoices,
+    serviceExpenses,
+  });
+
+  return {
+    period: summary.period,
+    ivaDebitoTotal: summary.code502VatDebitCLP,
+    ivaCreditoTotal: summary.code511VatCreditCLP,
+    ivaDeterminadoPeriodo: summary.code538NetVatPayableCLP > 0 ? summary.code538NetVatPayableCLP : -summary.code77VatCreditCarryoverCLP,
+    ppmTotal: summary.code152PpmCLP,
+    totalPagarF29: summary.code91TotalTaxPayableCLP,
+    summary,
+  };
+}

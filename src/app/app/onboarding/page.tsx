@@ -29,7 +29,7 @@ import { store } from "@/lib/store";
 import { validateRUT, formatRUT } from "@/lib/chilean-utils/rut";
 import { validateLicensePlate, normalizeLicensePlate } from "@/lib/chilean-utils/license-plate";
 import { formatCLP } from "@/lib/chilean-utils/currency";
-import { lookupVehicleByPlate } from "@/lib/chilean-utils/padron-decoder";
+import { fetchPlateScraper } from "@/lib/chilean-utils/plate-scraper";
 
 export default function OnboardingWizardPage() {
   const router = useRouter();
@@ -132,21 +132,25 @@ export default function OnboardingWizardPage() {
   };
 
   // Handlers for Step 2
-  const handlePlateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePlateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.toUpperCase();
     setPlate(val);
     const check = validateLicensePlate(val);
     if (check.valid) {
       setPlateError("");
-      const data = lookupVehicleByPlate(val);
-      setBrand(data.brand);
-      setModel(data.model);
-      setVersion(data.version);
-      setYear(data.year.toString());
-      setMileage(data.mileage.toString());
-      setPriceCash(data.priceCash.toString());
-      setPriceFinanced(data.priceFinanced.toString());
-      setImageUrl(data.imageUrl);
+      try {
+        const data = await fetchPlateScraper(val);
+        setBrand(data.brand);
+        setModel(data.model);
+        setVersion(data.version);
+        setYear(data.year.toString());
+        setMileage(data.mileage.toString());
+        setPriceCash(data.priceCash.toString());
+        setPriceFinanced(data.priceFinanced.toString());
+        if (data.imageUrl) setImageUrl(data.imageUrl);
+      } catch (err) {
+        console.warn("Onboarding plate scraper error:", err);
+      }
     } else {
       setPlateError(val.length < 5 ? "" : "Formato inválido (ej. BBCL12 o AB1234)");
     }

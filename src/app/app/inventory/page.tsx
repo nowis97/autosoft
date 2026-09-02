@@ -6,8 +6,10 @@ import { store } from "@/lib/store";
 import { DashboardHeader } from "@/components/shared/DashboardHeader";
 import { VehicleTable } from "@/components/inventory/VehicleTable";
 import { VehicleFilters } from "@/components/inventory/VehicleFilters";
+import { VehiclePipelineKanban } from "@/components/inventory/VehiclePipelineKanban";
+import { VehicleIntakeModal } from "@/components/inventory/VehicleIntakeModal";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutGrid, List } from "lucide-react";
+import { Plus, LayoutGrid, List, Kanban, Sparkles } from "lucide-react";
 import { VehicleCard } from "@/components/inventory/VehicleCard";
 
 export default function InventoryPage() {
@@ -15,7 +17,8 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [brandFilter, setBrandFilter] = useState("ALL");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [viewMode, setViewMode] = useState<"table" | "grid" | "pipeline">("table");
+  const [isIntakeModalOpen, setIsIntakeModalOpen] = useState(false);
 
   const refreshData = () => {
     setVehicles(store.getVehicles());
@@ -47,7 +50,7 @@ export default function InventoryPage() {
     <div className="flex-1 flex flex-col">
       <DashboardHeader
         title="Inventario de Vehículos (DMS)"
-        subtitle="Administra tu stock, precios y sincronización con Mercado Libre y Chileautos"
+        subtitle="Administra tu stock, estados del pipeline y sincronización con Mercado Libre y Chileautos"
       />
 
       <main className="p-6 max-w-7xl w-full space-y-4">
@@ -82,10 +85,29 @@ export default function InventoryPage() {
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
+              <button
+                onClick={() => setViewMode("pipeline")}
+                className={`p-1.5 rounded-md text-xs font-semibold ${
+                  viewMode === "pipeline" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Vista Pipeline Kanban"
+              >
+                <Kanban className="w-4 h-4" />
+              </button>
             </div>
 
+            <Button
+              onClick={() => setIsIntakeModalOpen(true)}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 font-bold border-cyan-300 text-cyan-800 bg-cyan-50/50 hover:bg-cyan-100/50 shadow-2xs"
+            >
+              <Sparkles className="w-4 h-4 text-cyan-600" />
+              <span>Alta con IA</span>
+            </Button>
+
             <Link href="/app/inventory/new">
-              <Button size="sm" className="gap-1.5 font-bold shadow-xs">
+              <Button size="sm" className="gap-1.5 font-bold shadow-xs bg-slate-900 text-white hover:bg-slate-800">
                 <Plus className="w-4 h-4" />
                 <span>Agregar Vehículo</span>
               </Button>
@@ -93,16 +115,28 @@ export default function InventoryPage() {
           </div>
         </div>
 
-        {viewMode === "table" ? (
+        {viewMode === "table" && (
           <VehicleTable vehicles={filteredVehicles} onRefresh={refreshData} />
-        ) : (
+        )}
+
+        {viewMode === "grid" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredVehicles.map((v) => (
-              <VehicleCard key={v.id} vehicle={v} publicView={false} />
+              <VehicleCard key={v.id} vehicle={v} />
             ))}
           </div>
         )}
+
+        {viewMode === "pipeline" && (
+          <VehiclePipelineKanban />
+        )}
       </main>
+
+      <VehicleIntakeModal
+        isOpen={isIntakeModalOpen}
+        onClose={() => setIsIntakeModalOpen(false)}
+        onVehicleCreated={refreshData}
+      />
     </div>
   );
 }

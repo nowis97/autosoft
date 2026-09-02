@@ -67,6 +67,7 @@ export interface Vehicle {
   tenantId: string;
   licensePlate: string;
   vin?: string;
+  engineNumber?: string;
   brand: string;
   model: string;
   version: string;
@@ -92,6 +93,7 @@ export interface Vehicle {
   daysInStock?: number;
   reconditioningCostCLP?: number;
   reconditioningStatus?: "EN_TALLER" | "ESPERANDO_REPUESTOS" | "EN_DETAILING" | "LISTO_PARA_EXHIBIR";
+  pipelineStage?: VehiclePipelineStage;
   isConsignment?: boolean;
   consignmentId?: string;
   createdAt: string;
@@ -481,5 +483,93 @@ export interface DigitalNotaryContract {
   signedAt?: string;
   notarizedAt?: string;
   createdAt: string;
+}
+
+// Operational Vehicle Pipeline (GoAuto Parity)
+export type VehiclePipelineStage =
+  | "REVISION_MECANICA"
+  | "PREPARACION"
+  | "LISTO_FOTO"
+  | "PUBLICADO"
+  | "RESERVADO"
+  | "VENDIDO"
+  | "RETIRADO";
+
+// Dealership Task Management
+export type DealerTaskPriority = "ALTA" | "MEDIA" | "BAJA";
+export type DealerTaskDepartment = "DOCUMENTACION" | "VENTA" | "GENERAL" | "TALLER";
+export type DealerTaskStatus = "PENDIENTE" | "EN_PROGRESO" | "POR_APROBAR" | "COMPLETADA";
+
+export interface DealerTask {
+  id: string;
+  tenantId: string;
+  vehicleId?: string;
+  vehiclePlate?: string;
+  vehicleModel?: string;
+  vehicleYear?: number;
+  vehicleThumbnail?: string;
+  title: string;
+  description: string;
+  priority: DealerTaskPriority;
+  department: DealerTaskDepartment;
+  status: DealerTaskStatus;
+  dueDate: string;
+  assignedUserId?: string;
+  assignedUserName?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+// Sales Commissions & Approvals
+export type CommissionBase = "TOTAL_VENTA" | "MARGEN_BRUTO";
+export type CommissionType = "PERCENTAGE" | "FIXED";
+
+export interface CommissionRule {
+  base: CommissionBase;
+  type: CommissionType;
+  percentage?: number;
+  fixedAmountCLP?: number;
+  splitEqually?: boolean;
+  collaboratorIds?: string[];
+}
+
+export interface SaleApprovalRecord {
+  id: string;
+  tenantId: string;
+  vehicleId: string;
+  buyerName: string;
+  buyerRut: string;
+  buyerEmail?: string;
+  salePriceCLP: number;
+  paymentMethod: "EFECTIVO" | "CREDITO" | "TRANSFERENCIA" | "VALE_VISTA";
+  salesRepUserId: string;
+  salesRepName: string;
+  commissionRule: CommissionRule;
+  calculatedCommissionCLP: number;
+  marginCLP: number;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  approvedAt?: string;
+  dteFolio?: number;
+  createdAt: string;
+}
+
+// Chilean Contract Templates
+export type ContractTemplateType =
+  | "NOTA_VENTA"
+  | "NOTA_COMPRA"
+  | "CONSIGNACION"
+  | "RESERVACION"
+  | "COTIZACION"
+  | "CIERRE_NEGOCIO"
+  | "FICHA_TECNICA";
+
+export interface ContractFinancialAdjustment {
+  basePriceCLP: number;
+  priceAdjustmentCLP: number;
+  gestoriaFeeCLP: number;
+  additionalInsuranceCLP: number;
+  accessoriesCLP: number;
+  totalPriceCLP: number;
 }
 
