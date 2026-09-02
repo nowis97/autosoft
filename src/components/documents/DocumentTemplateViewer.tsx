@@ -74,32 +74,39 @@ export function DocumentTemplateViewer() {
   return (
     <div className="space-y-6">
       {/* Top Templates Selector Bar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+      <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Plantillas Oficiales</div>
+            <h3 className="text-sm font-extrabold text-slate-900">Documentos Legales & Notaría Digital</h3>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Button onClick={handleSave} size="sm" className="gap-1.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-xs">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Guardar</span>
+            </Button>
+            <Button onClick={() => window.print()} variant="outline" size="sm" className="gap-1.5 text-xs font-bold rounded-xl bg-slate-50 hover:bg-slate-100">
+              <Printer className="w-3.5 h-3.5" />
+              <span>Imprimir</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
           {TEMPLATES.map((tpl) => (
             <button
               key={tpl.key}
               onClick={() => setActiveTemplate(tpl.key)}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 activeTemplate === tpl.key
-                  ? "bg-slate-900 text-white shadow-2xs"
-                  : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60"
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 border border-slate-200/60"
               }`}
             >
               {tpl.label}
             </button>
           ))}
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <Button onClick={handleSave} size="sm" className="gap-1.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-2xs">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Guardar cambios</span>
-          </Button>
-          <Button onClick={() => window.print()} variant="outline" size="sm" className="gap-1.5 text-xs font-bold rounded-xl">
-            <Printer className="w-3.5 h-3.5" />
-            <span>Imprimir</span>
-          </Button>
         </div>
       </div>
 

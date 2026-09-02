@@ -67,21 +67,21 @@ export default function MarketingPage() {
 
       <main className="p-6 max-w-7xl w-full space-y-6">
         {/* Vehicle Selector Header */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
               <Megaphone className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs text-slate-400 font-semibold uppercase">Vehículo a Promocionar</div>
-              <div className="font-extrabold text-slate-900 text-base">
-                {vehicle?.brand} {vehicle?.model} ({vehicle?.year})
+              <div className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Vehículo a Promocionar</div>
+              <div className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                <span>{vehicle?.brand} {vehicle?.model} ({vehicle?.year})</span>
+                {vehicle && <LicensePlateBadge plate={vehicle.licensePlate} size="sm" />}
               </div>
             </div>
-            {vehicle && <LicensePlateBadge plate={vehicle.licensePlate} size="sm" />}
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <select
               value={selectedVehicleId}
               onChange={(e) => {
@@ -98,7 +98,7 @@ export default function MarketingPage() {
                   );
                 }
               }}
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none"
+              className="h-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs focus:outline-none"
             >
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -109,10 +109,10 @@ export default function MarketingPage() {
 
             <Button
               onClick={handleDownloadHD}
-              className="font-bold text-xs gap-1.5 shadow-sm bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
+              className="font-bold text-xs gap-1.5 shadow-xs bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
             >
               <Download className="w-4 h-4" />
-              <span>Descargar Creatividad HD</span>
+              <span>Descargar HD</span>
             </Button>
           </div>
         </div>

@@ -64,9 +64,9 @@ export function ValuationResultCard({
           Rangos de Oferta de Compra para el Dealer
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
           {/* Quick Offer */}
-          <div className="bg-slate-800/50 border border-slate-700/80 hover:border-slate-600 rounded-xl p-4 space-y-2 flex flex-col justify-between">
+          <div className="bg-slate-800/50 border border-slate-700/80 hover:border-slate-600 rounded-2xl p-4 space-y-2 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-[11px] text-slate-400 font-bold">
                 <span>Oferta Rápida</span>
@@ -83,14 +83,14 @@ export function ValuationResultCard({
               size="sm"
               variant="outline"
               onClick={() => onConvertToInventory(result.quickOffer)}
-              className="w-full text-xs font-bold text-slate-800 mt-2"
+              className="w-full text-xs font-bold text-slate-800 bg-white hover:bg-slate-100 mt-3 rounded-xl"
             >
               Comprar en Rápida
             </Button>
           </div>
 
           {/* Recommended Offer */}
-          <div className="bg-blue-950/60 border-2 border-blue-500 rounded-xl p-4 space-y-2 flex flex-col justify-between relative shadow-lg">
+          <div className="bg-blue-950/60 border-2 border-blue-500 rounded-2xl p-4 space-y-2 flex flex-col justify-between relative shadow-lg">
             <div className="absolute -top-2.5 right-3 bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
               Recomendada
             </div>
@@ -109,14 +109,14 @@ export function ValuationResultCard({
             <Button
               size="sm"
               onClick={() => onConvertToInventory(result.recommendedOffer)}
-              className="w-full text-xs font-black bg-blue-600 hover:bg-blue-500 text-white mt-2 shadow-sm"
+              className="w-full text-xs font-black bg-blue-600 hover:bg-blue-500 text-white mt-3 rounded-xl shadow-sm"
             >
               Aceptar Retoma ({formatCLP(result.recommendedOffer)})
             </Button>
           </div>
 
           {/* Max Offer */}
-          <div className="bg-slate-800/50 border border-slate-700/80 hover:border-slate-600 rounded-xl p-4 space-y-2 flex flex-col justify-between">
+          <div className="bg-slate-800/50 border border-slate-700/80 hover:border-slate-600 rounded-2xl p-4 space-y-2 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-[11px] text-slate-400 font-bold">
                 <span>Oferta Techo Máximo</span>
@@ -133,7 +133,7 @@ export function ValuationResultCard({
               size="sm"
               variant="outline"
               onClick={() => onConvertToInventory(result.maxOffer)}
-              className="w-full text-xs font-bold text-slate-800 mt-2"
+              className="w-full text-xs font-bold text-slate-800 bg-white hover:bg-slate-100 mt-3 rounded-xl"
             >
               Comprar en Techo
             </Button>

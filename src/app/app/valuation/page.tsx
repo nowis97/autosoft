@@ -227,12 +227,12 @@ export default function ValuationPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div className="space-y-6">
             <TradeInValuationForm onValuationComputed={handleValuationComputed} />
           </div>
 
-          <div className="lg:col-span-6 space-y-6">
+          <div className="space-y-6">
             {activeValuation ? (
               <ValuationResultCard
                 licensePlate={activeValuation.licensePlate}

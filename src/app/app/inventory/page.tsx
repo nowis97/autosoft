@@ -53,8 +53,8 @@ export default function InventoryPage() {
         subtitle="Administra tu stock, estados del pipeline y sincronización con Mercado Libre y Chileautos"
       />
 
-      <main className="p-6 max-w-7xl w-full space-y-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+      <main className="p-6 max-w-7xl w-full space-y-5">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/80">
           <VehicleFilters
             search={search}
             onSearchChange={setSearch}
@@ -65,34 +65,37 @@ export default function InventoryPage() {
             brands={brands}
           />
 
-          <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-            <div className="flex items-center bg-slate-200/80 p-1 rounded-lg border border-slate-200">
+          <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto shrink-0">
+            <div className="inline-flex items-center bg-slate-200/80 p-1 rounded-xl border border-slate-200">
               <button
                 onClick={() => setViewMode("table")}
-                className={`p-1.5 rounded-md text-xs font-semibold ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === "table" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
                 }`}
                 title="Vista Tabla"
               >
-                <List className="w-4 h-4" />
+                <List className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Tabla</span>
               </button>
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-md text-xs font-semibold ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === "grid" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
                 }`}
                 title="Vista Grilla"
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Tarjetas</span>
               </button>
               <button
                 onClick={() => setViewMode("pipeline")}
-                className={`p-1.5 rounded-md text-xs font-semibold ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === "pipeline" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
                 }`}
                 title="Vista Pipeline Kanban"
               >
-                <Kanban className="w-4 h-4" />
+                <Kanban className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Pipeline</span>
               </button>
             </div>
 
@@ -100,42 +103,49 @@ export default function InventoryPage() {
               onClick={() => setIsIntakeModalOpen(true)}
               variant="outline"
               size="sm"
-              className="gap-1.5 font-bold border-cyan-300 text-cyan-800 bg-cyan-50/50 hover:bg-cyan-100/50 shadow-2xs"
+              className="gap-1.5 font-bold rounded-xl border-cyan-300 text-cyan-800 bg-cyan-50/60 hover:bg-cyan-100/60 shadow-2xs"
             >
-              <Sparkles className="w-4 h-4 text-cyan-600" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-600" />
               <span>Alta con IA</span>
             </Button>
 
             <Link href="/app/inventory/new">
-              <Button size="sm" className="gap-1.5 font-bold shadow-xs bg-slate-900 text-white hover:bg-slate-800">
-                <Plus className="w-4 h-4" />
-                <span>Agregar Vehículo</span>
+              <Button size="sm" className="gap-1.5 font-bold rounded-xl shadow-xs bg-slate-900 text-white hover:bg-slate-800">
+                <Plus className="w-3.5 h-3.5" />
+                <span>+ Agregar</span>
               </Button>
             </Link>
           </div>
         </div>
 
-        {viewMode === "table" && (
-          <VehicleTable vehicles={filteredVehicles} onRefresh={refreshData} />
-        )}
-
-        {viewMode === "grid" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredVehicles.map((v) => (
-              <VehicleCard key={v.id} vehicle={v} />
+        {/* View Mode Switching */}
+        {viewMode === "pipeline" ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Pipeline Operativo del Vehículo</h3>
+                <p className="text-xs text-slate-500">Mueve los vehículos a través de las 7 etapas operacionales</p>
+              </div>
+            </div>
+            <VehiclePipelineKanban />
+          </div>
+        ) : viewMode === "grid" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredVehicles.map((vehicle) => (
+              <VehicleCard key={vehicle.id} vehicle={vehicle} onUpdate={refreshData} />
             ))}
           </div>
-        )}
-
-        {viewMode === "pipeline" && (
-          <VehiclePipelineKanban />
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+            <VehicleTable vehicles={filteredVehicles} onUpdate={refreshData} />
+          </div>
         )}
       </main>
 
       <VehicleIntakeModal
         isOpen={isIntakeModalOpen}
         onClose={() => setIsIntakeModalOpen(false)}
-        onVehicleCreated={refreshData}
+        onVehicleCreated={() => refreshData()}
       />
     </div>
   );

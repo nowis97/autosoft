@@ -24,22 +24,22 @@ export function VehicleFilters({
   brands,
 }: VehicleFiltersProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 items-center justify-between mb-6">
-      <div className="relative w-full sm:w-80">
+    <div className="flex flex-wrap items-center gap-3">
+      <div className="relative w-full sm:w-72">
         <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
         <Input
           placeholder="Buscar por marca, modelo o patente..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9"
+          className="pl-9 bg-white rounded-xl"
         />
       </div>
 
-      <div className="flex items-center gap-2.5 w-full sm:w-auto">
+      <div className="flex items-center gap-2.5">
         <select
           value={statusFilter}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="h-10 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="h-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
           <option value="ALL">Todos los Estados</option>
           <option value="AVAILABLE">Disponibles</option>
@@ -51,7 +51,7 @@ export function VehicleFilters({
         <select
           value={brandFilter}
           onChange={(e) => onBrandChange(e.target.value)}
-          className="h-10 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="h-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
           <option value="ALL">Todas las Marcas</option>
           {brands.map((b) => (
