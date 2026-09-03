@@ -132,12 +132,12 @@ export default function InventoryPage() {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredVehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} onUpdate={refreshData} />
+              <VehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-            <VehicleTable vehicles={filteredVehicles} onUpdate={refreshData} />
+            <VehicleTable vehicles={filteredVehicles} onRefresh={refreshData} />
           </div>
         )}
       </main>
